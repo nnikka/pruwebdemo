@@ -30,22 +30,12 @@ $(document).ready(function(){
     }
 
     function startApp() {
-			companyFactoryAddress = "0x67b7525d01ba2576ed34e24b016a8ada8955a06b";
+			companyFactoryAddress = "0x97855cB400B66cc1905Afc30D10110C6d477d70A";
 			$.ajaxSetup({async: false});
-			$.get("assets/contract_abi.js", function(data) { companyFactoryAbi = JSON.parse(data); }, "text");
-			companyApp = new web3.eth.Contract(companyFactoryAbi, companyFactoryAddress);
+			$.get("assets/company_factory.js", function(data) { companyFactoryAbi = JSON.parse(data); }, "text");
+      companyApp = new web3.eth.Contract(companyFactoryAbi, companyFactoryAddress);
       $.ajaxSetup({async: true});
     }
-
-    //  companyApp.methods.createContract("gio", "ss","ss","sdf","551").send({from:userAccount})
-    //       .on("receipt",function(receipt){
-    //         console.log(receipt);
-    //       })
-    //       .on("error",function(err){
-    //         console.log(err);
-    //       });
-    
-
     
     
     
@@ -63,7 +53,15 @@ $(document).ready(function(){
         data:{function_name:"register_company",name:name, phone:phone, password:password, description:description, email:email, pub_key:pub_key}
       }).done(function(success){
         if(success == 200){
-          makeDefaultSwall("Good Job", "You registered successfully", "success");
+          makeDefaultSwall("Good Job", "You registered successfully, Confirm transaction in Metamask and wait for smart contract insertion", "success");
+          companyApp.methods.createContract(web3.utils.asciiToHex(name.toString()), email.toString(), phone.toString() , description.toString(), pub_key.toString()).send({from:userAccount})
+          .on("receipt",function(receipt){
+            makeDefaultSwall("Congratulation", "Your info is saved in smart contract", "success");
+            console.log(receipt)
+          })
+          .on("error",function(err){
+            makeDefaultSwall("Upps..", "Your info isn't saved in smart contract", "error");
+          });
         }else{
           alert(success);
           makeDefaultSwall("Sorry", "Something went wrong", "error");
