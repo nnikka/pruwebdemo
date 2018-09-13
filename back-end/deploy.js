@@ -20,7 +20,7 @@ const provider = new HDWalletProvider(
 
 const web3 = new Web3(provider);
 
-fs.writeFile(path.join(__dirname, '../front_end')+"/assets/contract_abi.js", JSON.stringify(abiCompanyFactory), 'utf8', (err,result)=>{
+fs.writeFile(path.join(__dirname, '../front-end')+"/assets/contract_abi.js", JSON.stringify(abiCompanyFactory), 'utf8', (err,result)=>{
     if(err) throw err;
 });
 
