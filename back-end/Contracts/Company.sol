@@ -43,6 +43,10 @@ contract Company {
         _;
     }
 
+
+    function getCompanyInformation() public view returns(bytes32,string, string, string, string){
+        return (name,email,phone,description, pub_key);
+    }
     
     function getName() public view returns(bytes32){
         return name;
