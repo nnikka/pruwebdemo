@@ -81,7 +81,13 @@ $(document).ready(function(){
             }
          });
       }
+    });
 
+    $('#addProductButton').click(function(e){
+      e.preventDefault();
+      var name = $("#name").val();
+      var description = $('#description').val();
+      if(name != "" && description != "") makeDefaultSwall(name, description,  "success");
     });
 
     function makeDefaultSwall(header,body,status){

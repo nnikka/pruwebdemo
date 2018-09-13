@@ -25,8 +25,9 @@ function register_company($data, $conn){
 function login_company($data, $conn){
   $sql = "SELECT * FROM company where email='".$data['email']."' AND password='".$data['password']."'";
   $result = $conn->query($sql);
-  if ($result->num_rows > 0) {
-    $_SESSION['company'] = $data['email'];
+  if ($result->num_rows > 0) {;
+    $row = $result->fetch_assoc();
+    $_SESSION['company'] = $row["name"];
     echo 200;
   }else{
     echo $conn->error;

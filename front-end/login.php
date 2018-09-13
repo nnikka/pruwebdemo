@@ -15,7 +15,7 @@ include("includes/loggedin.php");
         <input type="password"  class="form-control" name="password" id="password"><br>
     </div>
   
-    <button type="submit" class="btn btn-default" id="loginButton">Submit</button>
+    <button type="submit" class="btn btn-default" id="loginButton">Login</button>
     <a href="register.php" class="btn btn-default">Register</a>
 </form>
 
