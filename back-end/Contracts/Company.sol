@@ -32,6 +32,10 @@ contract Company {
         product_names.push(_name);
         product_address[_name] = prod_address;
     }
+
+    function getAllProducts() public view returns(bytes32[]){
+        return product_names;
+    }
     
     modifier isOwner()
     {
