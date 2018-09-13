@@ -1,13 +1,20 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
-<script language="javascript" type="text/javascript" src="assets/contract_abi.js"></script>
+<script language="javascript" type="text/javascript" src="assets/company_factory.js"></script>
+<script language="javascript" type="text/javascript" src="assets/company.js"></script>
+<script language="javascript" type="text/javascript" src="assets/product.js"></script>
 <script src="assets/web3.min.js"></script>
 <script>
 
 $(document).ready(function(){
-    var contractAddress;
-    var contractAbi;
+    var companyFactoryAddress;
+    
+    //abis
+    var companyFactoryAbi;
+    var companyAbi;
+    var productAbi;
+    
     var companyApp;
     var userAccount;
     if (typeof web3 !== 'undefined') {
@@ -23,19 +30,20 @@ $(document).ready(function(){
     }
 
     function startApp() {
-			contractAddress = "0x67b7525d01ba2576ed34e24b016a8ada8955a06b";
+			companyFactoryAddress = "0x67b7525d01ba2576ed34e24b016a8ada8955a06b";
 			$.ajaxSetup({async: false});
-			$.get("assets/contract_abi.js", function(data) { contractAbi = JSON.parse(data); }, "text");
-			companyApp = new web3.eth.Contract(contractAbi, contractAddress);
+			$.get("assets/contract_abi.js", function(data) { companyFactoryAbi = JSON.parse(data); }, "text");
+			companyApp = new web3.eth.Contract(companyFactoryAbi, companyFactoryAddress);
       $.ajaxSetup({async: true});
-      companyApp.methods.createContract("gio", "ss","ss","sdf","551").send({from:userAccount})
-          .on("receipt",function(receipt){
-            console.log(receipt);
-          })
-          .on("error",function(err){
-            console.log(err);
-          });
     }
+
+    //  companyApp.methods.createContract("gio", "ss","ss","sdf","551").send({from:userAccount})
+    //       .on("receipt",function(receipt){
+    //         console.log(receipt);
+    //       })
+    //       .on("error",function(err){
+    //         console.log(err);
+    //       });
     
 
     

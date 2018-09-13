@@ -8,9 +8,14 @@ let AbiCompanyFactory,BytecodeCompanyFactory;
 
 
 var contentOfCompanyFactory = fs.readFileSync("Contract_Files/CompanyFactory.json",'utf8');
+var contentOfCompany = fs.readFileSync("Contract_Files/Company.json",'utf8');
+var contentOfProduct = fs.readFileSync("Contract_Files/Product.json",'utf8');
 
 abiCompanyFactory = JSON.parse(JSON.parse(contentOfCompanyFactory)['interface']);
 byteCodeCompanyFactory = (JSON.parse(contentOfCompanyFactory)['bytecode']);
+
+let abiCompany = JSON.parse(JSON.parse(contentOfCompany)['interface']);
+let abiProduct = JSON.parse(JSON.parse(contentOfProduct)['interface']);
 
 
 const provider = new HDWalletProvider(
@@ -20,7 +25,13 @@ const provider = new HDWalletProvider(
 
 const web3 = new Web3(provider);
 
-fs.writeFile(path.join(__dirname, '../front-end')+"/assets/contract_abi.js", JSON.stringify(abiCompanyFactory), 'utf8', (err,result)=>{
+fs.writeFile(path.join(__dirname, '../front-end')+"/assets/company_factory.js", JSON.stringify(abiCompanyFactory), 'utf8', (err,result)=>{
+    if(err) throw err;
+});
+fs.writeFile(path.join(__dirname, '../front-end')+"/assets/company.js", JSON.stringify(abiCompany), 'utf8', (err,result)=>{
+    if(err) throw err;
+});
+fs.writeFile(path.join(__dirname, '../front-end')+"/assets/product.js", JSON.stringify(abiProduct), 'utf8', (err,result)=>{
     if(err) throw err;
 });
 

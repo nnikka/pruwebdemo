@@ -23,7 +23,7 @@ var input = {
 
 
 var output = solc.compile({ sources: input }, 1)
-
+console.log(output);
 for( let contract in output.contracts ) {
     let name = contract.split(":")[1];
     let contractJson = JSON.stringify(output.contracts[contract]);

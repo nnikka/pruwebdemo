@@ -2,24 +2,33 @@
 
 pragma solidity ^0.4.0;
 
+import "./Product.sol";
+
 contract Company {
 
-    string private name;
+    bytes32 private name;
     string private email;
     string private phone;
     string private description;
     string private pub_key;
+
     address private owner;
-    address[] private products;
-    mapping (string => address) map;
     
-    constructor(string _name, string _email, string _phone, string _description, string _pub_key, address _sender) public {
+    mapping(bytes32=>address) public product_address;
+    
+    constructor(bytes32 _name, string _email, string _phone, string _description, string _pub_key, address _sender) public {
         name = _name;
         email = _email;
         phone = _phone;
         description = _description;
         pub_key = _pub_key;
         owner = _sender;
+    }
+
+
+    function createProduct(bytes32 _name, string _description) public isOwner {
+        address prod_address = new Product(_name, _description, msg.sender);
+        product_address[_name] = prod_address;
     }
     
     modifier isOwner()
@@ -29,7 +38,7 @@ contract Company {
     }
 
     
-    function getName() public view returns(string){
+    function getName() public view returns(bytes32){
         return name;
     }
     function getEail() public view returns(string){
