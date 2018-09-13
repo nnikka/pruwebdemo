@@ -1,0 +1,25 @@
+{
+  "name": "proofusweb",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nnikka/pruwebdemo.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "buffer": "^5.2.0",
+    "solc": "^0.4.24",
+    "truffle-hdwallet-provider": "0.0.3",
+    "web3": "^1.0.0-beta.26"
+  },
+  "bugs": {
+    "url": "https://github.com/nnikka/pruwebdemo/issues"
+  },
+  "homepage": "https://github.com/nnikka/pruwebdemo#readme"
+}
