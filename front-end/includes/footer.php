@@ -1,5 +1,11 @@
 </div>
 
+
+<?php 
+   $company_name = isset($_SESSION['company']) ? $_SESSION['company'] : null;
+   
+?>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
 <script language="javascript" type="text/javascript" src="assets/company_factory.js"></script>
 <script language="javascript" type="text/javascript" src="assets/company.js"></script>
@@ -8,14 +14,20 @@
 <script>
 
 $(document).ready(function(){
+    
     var companyFactoryAddress;
     
     //abis
     var companyFactoryAbi;
     var companyAbi;
     var productAbi;
-    
+
+    //Apps
+    var companyFactoryApp;
     var companyApp;
+    var productApp;
+
+
     var userAccount;
     if (typeof web3 !== 'undefined') {
       web3 = new Web3(web3.currentProvider);
@@ -30,25 +42,15 @@ $(document).ready(function(){
     }
 
     function startApp() {
-			companyFactoryAddress = "0x67b7525d01ba2576ed34e24b016a8ada8955a06b";
+			companyFactoryAddress = "0xC252A358290CC85D5ad684A8d6736520E7a33ea3";
 			$.ajaxSetup({async: false});
-			$.get("assets/contract_abi.js", function(data) { companyFactoryAbi = JSON.parse(data); }, "text");
-			companyApp = new web3.eth.Contract(companyFactoryAbi, companyFactoryAddress);
+      $.get("assets/company_factory.js", function(data) { companyFactoryAbi = JSON.parse(data); }, "text");
+      $.get("assets/company.js", function(data) { companyAbi = JSON.parse(data); }, "text");
+      $.get("assets/product.js", function(data) { productAbi = JSON.parse(data); }, "text");
+			companyFactoryApp = new web3.eth.Contract(companyFactoryAbi, companyFactoryAddress);
       $.ajaxSetup({async: true});
     }
-
-    //  companyApp.methods.createContract("gio", "ss","ss","sdf","551").send({from:userAccount})
-    //       .on("receipt",function(receipt){
-    //         console.log(receipt);
-    //       })
-    //       .on("error",function(err){
-    //         console.log(err);
-    //       });
-    
-
-    
-    
-    
+  
     $("#registerButton").click(function(e){
       e.preventDefault();
       var name = $('#name').val();
@@ -95,8 +97,64 @@ $(document).ready(function(){
       e.preventDefault();
       var name = $("#name").val();
       var description = $('#description').val();
-      if(name != "" && description != "") makeDefaultSwall(name, description,  "success");
+      <?php echo "var company_name = '" .$company_name . "';"; ?>
+
+      if(name == "" && description == "") makeDefaultSwall("Bad Luck", "Provide both fields",  "error");
+      else if(company_name == null) makeDefaultSwall("Bad Luck", "Please login again from scratch",  "error");
+      else{
+        companyFactoryApp.methods.company_products(web3.utils.asciiToHex(company_name)).call({from:userAccount}).then(companyAddress=>{
+          if(!/^0x0+$/.test(companyAddress)){
+            companyApp = new web3.eth.Contract(companyAbi, companyAddress);
+            companyApp.methods.createProduct(web3.utils.asciiToHex(name),description).send({from:userAccount})
+                  .on('receipt',function(receipt){
+                    makeDefaultSwall("Good job", "your transaction has been included in a block. wait 20 seconds, go back to the company page and click show me products again");
+                  })
+                  .on("error",function(error){
+                      makeDefaultSwall("Error", "Sorry your transaction won't be included in a block. See metamask error or try again", "error");
+                  });
+          }else{
+            makeDefaultSwall("Not found", "company address not exists. there must be an error");
+          }
+        });
+      }
     });
+
+    $('#showMeProducts').click(function(e){
+      <?php echo "var company_name = '" .$company_name . "';"; ?>
+      companyFactoryApp.methods.company_products(web3.utils.asciiToHex(company_name)).call({from:userAccount}).then(companyAddress=>{
+        if(!/^0x0+$/.test(companyAddress)){
+          companyApp = new web3.eth.Contract(companyAbi, companyAddress);
+          companyApp.methods.getCompanyInformation().call().then(companyInformation=>{
+            console.log(companyInformation);
+            $('#company_name').val(companyInformation[0]);
+            $('#company_email').val(companyInformation[1]);
+            $('#company_phone').val(companyInformation[2]);
+            $('#company_description').val(companyInformation[3]);
+            $('#company_pub_key').val(companyInformation[4]);
+          
+            companyApp.methods.getAllProducts().call().then(allProducts=>{
+              var html;
+              for(var i=0;i<allProducts.length;i++){
+                html+="<li class='list-group-item'">+allProducts[i]+"</li>";
+              }
+              $("#products").html(html);
+            });
+          });
+          
+        }else{
+          makeDefaultSwall("Not found", "company address not exists. there must be an error");
+        }
+      });
+        
+    });
+
+    
+
+    /* functions */
+
+    function getAllProducts(){
+
+    }
 
     function makeDefaultSwall(header,body,status){
         swal(
