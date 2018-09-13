@@ -41,7 +41,7 @@ web3.eth.getAccounts().then(accounts=>{
    .deploy({data:byteCodeCompanyFactory, arguments: []})
    .send({
         from: myAccount,
-        gas: 1500000,
+        gas: 2000000,
         gasPrice:20000000000 //price is in wei.
     }).then(data => {
         var address =data.options.address;
