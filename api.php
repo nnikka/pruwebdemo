@@ -1,10 +1,13 @@
 <?php
-
+session_start();
 include 'connection.php';
 
 
 if(isset($_POST['function_name']) && $_POST['function_name'] == "register_company"){
   echo register_company($_POST,$conn);
+}
+if(isset($_POST['function_name']) && $_POST['function_name'] == "login_company"){
+  echo login_company($_POST,$conn);
 }
 
 function register_company($data, $conn){
@@ -18,3 +21,14 @@ function register_company($data, $conn){
   }
 }
 
+
+function login_company($data, $conn){
+  $sql = "SELECT * FROM company where email='".$data['email']."' AND password='".$data['password']."'";
+  $result = $conn->query($sql);
+  if ($result->num_rows > 0) {
+    $_SESSION['company'] = $data['email'];
+    echo 200;
+  }else{
+    echo $conn->error;
+  }
+}

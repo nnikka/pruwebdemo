@@ -1,4 +1,7 @@
-<?php include("includes/header.php");?>
+<?php 
+include("includes/header.php");
+include("includes/loggedin.php");
+?>
 
 <h1>Login Company</h1>
 <form method="post">
@@ -13,6 +16,7 @@
     </div>
   
     <button type="submit" class="btn btn-default" id="loginButton">Submit</button>
+    <a href="register.php" class="btn btn-default">Register</a>
 </form>
 
 
