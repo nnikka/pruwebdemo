@@ -15,6 +15,7 @@ contract Company {
     address private owner;
     
     mapping(bytes32=>address) public product_address;
+    bytes32[] public product_names;
     
     constructor(bytes32 _name, string _email, string _phone, string _description, string _pub_key, address _sender) public {
         name = _name;
@@ -28,6 +29,7 @@ contract Company {
 
     function createProduct(bytes32 _name, string _description) public isOwner {
         address prod_address = new Product(_name, _description, msg.sender);
+        product_names.push(_name);
         product_address[_name] = prod_address;
     }
     
