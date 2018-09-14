@@ -1,4 +1,3 @@
-
 pragma solidity ^0.4.0;
 
 
@@ -42,5 +41,4 @@ contract Product {
     function getProductInfo() public view returns(bytes32, string){
         return (name,description);
     }
-
 }
