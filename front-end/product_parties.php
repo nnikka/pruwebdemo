@@ -7,11 +7,10 @@ $product_name = isset($_GET['name']) ? $_GET['name'] : null;
 
 
 <a href="includes/logout.php" class="btn btn-default" style="float: right !important">Logout</a>
-<a href="company.php" class="btn btn-default" style="float: right !important">Company Page</a>
+<a href="company.php" class="btn btn-default">Company Page</a>
 
 
 
-<hr />
 
 <a href="addParty.php?name=<?php echo $product_name;?>" class="btn btn-default" style="float: right !important">Add Party</a>
 

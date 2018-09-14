@@ -11,7 +11,6 @@ include("includes/loggedout.php");
 
 
 
-<hr />
 
 <a href="addproduct.php" class="btn btn-default" style="float: right !important">Add Product</a>
 
