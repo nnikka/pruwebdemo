@@ -3,6 +3,7 @@
 
 <?php 
    $company_name = isset($_SESSION['company']) ? $_SESSION['company'] : null;
+   $product_name = isset($_GET['name']) ? $_GET['name'] : null;
    
 ?>
 
@@ -67,7 +68,7 @@ $(document).ready(function(){
       }).done(function(success){
         if(success == 200){
           makeDefaultSwall("Good Job", "You registered successfully, Confirm transaction in Metamask and wait for smart contract insertion", "success");
-          companyFactoryApp.methods.createContract(web3.utils.asciiToHex(name.toString()), email.toString(), phone.toString() , description.toString(), pub_key.toString()).send({from:userAccount})
+          companyFactoryApp.methods.createContract(web3.utils.utf8ToHex(name.toString()), email.toString(), phone.toString() , description.toString(), pub_key.toString()).send({from:userAccount})
           .on("receipt",function(receipt){
             makeButtonSwall("Congrats","Your info is saved in smart contract", "success", false, "login.php");
            
@@ -112,10 +113,10 @@ $(document).ready(function(){
       if(name == "" && description == "") makeDefaultSwall("Bad Luck", "Provide both fields",  "error");
       else if(company_name == null) makeDefaultSwall("Bad Luck", "Please login again from scratch",  "error");
       else{
-        companyFactoryApp.methods.company_products(web3.utils.asciiToHex(company_name)).call({from:userAccount}).then(companyAddress=>{
+        companyFactoryApp.methods.company_products(web3.utils.utf8ToHex(company_name)).call({from:userAccount}).then(companyAddress=>{
           if(!/^0x0+$/.test(companyAddress)){
             companyApp = new web3.eth.Contract(companyAbi, companyAddress);
-            companyApp.methods.createProduct(web3.utils.asciiToHex(name),description).send({from:userAccount})
+            companyApp.methods.createProduct(web3.utils.utf8ToHex(name),description).send({from:userAccount})
                   .on('receipt',function(receipt){
                     makeButtonSwall("Good Job", "your transaction has been included in a block. wait 20 seconds, go back to the company page and click show me products again", "success", false, "company.php");
                     
@@ -132,14 +133,12 @@ $(document).ready(function(){
 
     $('#showMeProducts').click(function(e){
       <?php echo "var company_name = '" .$company_name . "';"; ?>
-      companyFactoryApp.methods.company_products(web3.utils.asciiToHex(company_name)).call({from:userAccount}).then(companyAddress=>{
+      companyFactoryApp.methods.company_products(web3.utils.utf8ToHex(company_name)).call({from:userAccount}).then(companyAddress=>{
         if(!/^0x0+$/.test(companyAddress)){
           companyApp = new web3.eth.Contract(companyAbi, companyAddress);
           companyApp.methods.getCompanyInformation().call().then(companyInformation=>{
-            console.log(companyInformation);
-            
             var companyInfoHtml="";
-            companyInfoHtml+="<li  class='list-group-item'>"+web3.utils.hexToAscii(companyInformation[0])+"</li>";
+            companyInfoHtml+="<li  class='list-group-item'>"+web3.utils.hexToUtf8(companyInformation[0])+"</li>";
             companyInfoHtml+="<li  class='list-group-item'>"+companyInformation[1]+"</li>";
             companyInfoHtml+="<li  class='list-group-item'>"+companyInformation[2]+"</li>";
             companyInfoHtml+="<li  class='list-group-item'>"+companyInformation[3]+"</li>";
@@ -147,13 +146,13 @@ $(document).ready(function(){
             $('#company_info').html(companyInfoHtml);
 
             companyApp.methods.getAllProducts().call().then(allProducts=>{
-              console.log(allProducts);
               var html="";
               for(var i=0;i<allProducts.length;i++){
-               
-                html+="<li class='list-group-item'>"+web3.utils.hexToAscii(allProducts[i])+"</li>";
+                var product = web3.utils.hexToUtf8(allProducts[i]);
+                console.log(product);
+                html+="<a href='product_parties.php?name="+product+"'"+"><li class='list-group-item'>"+product+"</li></a>";
               }
-              console.log(html);
+              
               $("#products").html(html);
             });
           });
@@ -164,6 +163,64 @@ $(document).ready(function(){
       });
         
     });
+
+    $('#addParty').on('click',function(e){
+      e.preventDefault();
+      var party_name = $("#party_name").val();
+      var party_description = $("#party_description").val();
+      var party_quantity = $("#party_quantity").val();
+      
+      if(party_name == "" || party_description == "" || party_quantity == "") makeDefaultSwall("Bad Luck", "Provide all fields","error");
+      else{
+        <?php echo "var product_name = '" .$product_name . "';"; ?>;
+        <?php echo "var company_name = '" .$company_name . "';"; ?>;
+        console.log(product_name);
+        companyFactoryApp.methods.company_products(web3.utils.utf8ToHex(company_name)).call({from:userAccount}).then(companyAddress=>{
+          if(!/^0x0+$/.test(companyAddress)){
+            companyApp = new web3.eth.Contract(companyAbi, companyAddress);
+            companyApp.methods.product_address(web3.utils.utf8ToHex(product_name)).call({from:userAccount}).then(productAddress=>{
+              productApp = new web3.eth.Contract(productAbi, productAddress);
+              productApp.methods.addParty(web3.utils.utf8ToHex(party_name),party_quantity,party_description).send({from:userAccount})
+                    .on('receipt',function(receipt){
+                      makeButtonSwall("Congrats","You've added new party", "success", false, "product_parties.php?name="+product_name);
+                    })
+                    .on("error",function(error){
+                      makeDefaultSwall("Sorry", "product couldn't be added. see metamask error for more info","error");
+                    });
+            })
+                  
+          }else{
+            makeDefaultSwall("Not found", "company address not exists. there must be an error", "error");
+          }
+        });
+      }
+    })
+
+    $('#showMeProductParties').on('click',function(e){
+      e.preventDefault();
+      <?php echo "var company_name = '" .$company_name . "';"; ?>;
+      <?php echo "var product_name = '" .$product_name . "';"; ?>;
+      console.log(product_name);
+      console.log(company_name);
+        companyFactoryApp.methods.company_products(web3.utils.utf8ToHex(company_name)).call({from:userAccount}).then(companyAddress=>{
+          if(!/^0x0+$/.test(companyAddress)){
+            companyApp = new web3.eth.Contract(companyAbi, companyAddress);
+            companyApp.methods.product_address(web3.utils.utf8ToHex(product_name)).call({from:userAccount}).then(productAddress=>{
+              productApp = new web3.eth.Contract(productAbi, productAddress);
+              productApp.methods.getPartyNames().call().then(parties=>{
+                var html = "";
+                console.log(parties);
+                for(var i=0;i<parties.length;i++){
+                  html+="<a href='product_parties.php?name="+web3.utils.hexToUtf8(parties[i])+"'"+"><li class='list-group-item'>"+web3.utils.hexToUtf8(parties[i])+"</li></a>";
+                }
+                $('#products').html(html);
+              })
+            })
+          }else{
+            makeDefaultSwall("Not found", "company address not exists. there must be an error", "error");
+          }
+        });
+    })
 
     
 
