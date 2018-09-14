@@ -43,7 +43,7 @@ $(document).ready(function(){
     }
 
     function startApp() {
-			companyFactoryAddress = "0x87193adD843e47a7BdcB76Da55fE906d3162C317";
+			companyFactoryAddress = "0x19d76632273255Ebc32BB558eD8388D86777244D";
 			$.ajaxSetup({async: false});
       $.get("assets/company_factory.js", function(data) { companyFactoryAbi = JSON.parse(data); }, "text");
       $.get("assets/company.js", function(data) { companyAbi = JSON.parse(data); }, "text");
@@ -183,13 +183,16 @@ $(document).ready(function(){
             companyApp = new web3.eth.Contract(companyAbi, companyAddress);
             companyApp.methods.product_address(web3.utils.utf8ToHex(product_name)).call({from:userAccount}).then(productAddress=>{
               productApp = new web3.eth.Contract(productAbi, productAddress);
+              $("#smartContractLoader").show();
               productApp.methods.addParty(web3.utils.utf8ToHex(party_name),party_quantity,party_description).send({from:userAccount})
-                    .on('receipt',function(receipt){
-                      makeButtonSwall("Congrats","You've added new party", "success", false, "product_parties.php?name="+product_name);
-                    })
-                    .on("error",function(error){
-                      makeDefaultSwall("Sorry", "product couldn't be added. see metamask error for more info","error");
-                    });
+              .on('receipt',function(receipt){
+                $("#smartContractLoader").hide();
+                makeButtonSwall("Congrats","You've added new party", "success", false, "product_parties.php?name="+product_name);
+              })
+              .on("error",function(error){
+                $("#smartContractLoader").hide();
+                makeDefaultSwall("Sorry", "product couldn't be added. see metamask error for more info","error");
+              });
             })
                   
           }else{
