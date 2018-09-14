@@ -4,7 +4,7 @@
 <?php 
    $company_name = isset($_SESSION['company']) ? $_SESSION['company'] : null;
    $product_name = isset($_GET['name']) ? $_GET['name'] : null;
-   
+   $party_name = isset($_GET['prod_name']) ? $_GET['prod_name'] : null;
 ?>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
@@ -43,7 +43,7 @@ $(document).ready(function(){
     }
 
     function startApp() {
-			companyFactoryAddress = "0x19d76632273255Ebc32BB558eD8388D86777244D";
+			companyFactoryAddress = "0xf7745cB148A00daA1DA11F6295d631C9Bbe38716";
 			$.ajaxSetup({async: false});
       $.get("assets/company_factory.js", function(data) { companyFactoryAbi = JSON.parse(data); }, "text");
       $.get("assets/company.js", function(data) { companyAbi = JSON.parse(data); }, "text");
@@ -184,7 +184,7 @@ $(document).ready(function(){
             companyApp.methods.product_address(web3.utils.utf8ToHex(product_name)).call({from:userAccount}).then(productAddress=>{
               productApp = new web3.eth.Contract(productAbi, productAddress);
               $("#smartContractLoader").show();
-              productApp.methods.addParty(web3.utils.utf8ToHex(party_name),party_quantity,party_description).send({from:userAccount})
+              productApp.methods.addParty(web3.utils.utf8ToHex(party_name), party_quantity.toString(),party_description).send({from:userAccount})
               .on('receipt',function(receipt){
                 $("#smartContractLoader").hide();
                 makeButtonSwall("Congrats","You've added new party", "success", false, "product_parties.php?name="+product_name);
@@ -193,8 +193,7 @@ $(document).ready(function(){
                 $("#smartContractLoader").hide();
                 makeDefaultSwall("Sorry", "product couldn't be added. see metamask error for more info","error");
               });
-            })
-                  
+            })     
           }else{
             makeDefaultSwall("Not found", "company address not exists. there must be an error", "error");
           }
@@ -217,7 +216,7 @@ $(document).ready(function(){
                 var html = "";
                 console.log(parties);
                 for(var i=0;i<parties.length;i++){
-                  html+="<a href='party.php?name="+web3.utils.hexToUtf8(parties[i])+"'"+"><li class='list-group-item'>"+web3.utils.hexToUtf8(parties[i])+"</li></a>";
+                  html+="<a href='party.php?name="+web3.utils.hexToUtf8(parties[i])+"&prod_name="+product_name+"'"+"><li class='list-group-item'>"+web3.utils.hexToUtf8(parties[i])+"</li></a>";
                 }
                 $('#products').html(html);
               })
@@ -232,15 +231,17 @@ $(document).ready(function(){
       
       <?php echo "var company_name = '" .$company_name . "';"; ?>;
       <?php echo "var party_name = '" .$product_name . "';"; ?>;
-        
+      <?php echo "var product_name = '" .$party_name . "';"; ?>; 
         companyFactoryApp.methods.company_products(web3.utils.utf8ToHex(company_name)).call({from:userAccount}).then(companyAddress=>{
           if(!/^0x0+$/.test(companyAddress)){
             companyApp = new web3.eth.Contract(companyAbi, companyAddress);
-            companyApp.methods.product_address(web3.utils.utf8ToHex(party_name)).call({from:userAccount}).then(productAddress=>{
+            companyApp.methods.product_address(web3.utils.utf8ToHex(product_name)).call({from:userAccount}).then(productAddress=>{
               productApp = new web3.eth.Contract(productAbi, productAddress);
               productApp.methods.getParty(web3.utils.utf8ToHex(party_name)).call().then(party_info=>{
                 var html="";
-                console.log(party_info);
+                html+="<li  class='list-group-item'>"+(new Date(party_info[0] * 1000))+"</li>";
+                html+="<li  class='list-group-item'>"+(party_info[1])+"</li>";
+                html+="<li  class='list-group-item'>"+(party_info[2])+"</li>";
                 
                 $('#party_info').html(html);
               })
