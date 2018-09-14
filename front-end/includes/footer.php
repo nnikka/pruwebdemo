@@ -42,7 +42,7 @@ $(document).ready(function(){
     }
 
     function startApp() {
-			companyFactoryAddress = "0xC252A358290CC85D5ad684A8d6736520E7a33ea3";
+			companyFactoryAddress = "0x87193adD843e47a7BdcB76Da55fE906d3162C317";
 			$.ajaxSetup({async: false});
       $.get("assets/company_factory.js", function(data) { companyFactoryAbi = JSON.parse(data); }, "text");
       $.get("assets/company.js", function(data) { companyAbi = JSON.parse(data); }, "text");
@@ -66,7 +66,7 @@ $(document).ready(function(){
       }).done(function(success){
         if(success == 200){
           makeDefaultSwall("Good Job", "You registered successfully, Confirm transaction in Metamask and wait for smart contract insertion", "success");
-          companyApp.methods.createContract(web3.utils.asciiToHex(name.toString()), email.toString(), phone.toString() , description.toString(), pub_key.toString()).send({from:userAccount})
+          companyFactoryApp.methods.createContract(web3.utils.asciiToHex(name.toString()), email.toString(), phone.toString() , description.toString(), pub_key.toString()).send({from:userAccount})
           .on("receipt",function(receipt){
             makeDefaultSwall("Congratulation", "Your info is saved in smart contract", "success");
             console.log(receipt)
@@ -134,17 +134,23 @@ $(document).ready(function(){
           companyApp = new web3.eth.Contract(companyAbi, companyAddress);
           companyApp.methods.getCompanyInformation().call().then(companyInformation=>{
             console.log(companyInformation);
-            $('#company_name').val(companyInformation[0]);
-            $('#company_email').val(companyInformation[1]);
-            $('#company_phone').val(companyInformation[2]);
-            $('#company_description').val(companyInformation[3]);
-            $('#company_pub_key').val(companyInformation[4]);
-          
+            
+            var companyInfoHtml="";
+            companyInfoHtml+="<li  class='list-group-item'>"+web3.utils.hexToAscii(companyInformation[0])+"</li>";
+            companyInfoHtml+="<li  class='list-group-item'>"+companyInformation[1]+"</li>";
+            companyInfoHtml+="<li  class='list-group-item'>"+companyInformation[2]+"</li>";
+            companyInfoHtml+="<li  class='list-group-item'>"+companyInformation[3]+"</li>";
+            companyInfoHtml+="<li  class='list-group-item'>"+companyInformation[4]+"</li>";
+            $('#company_info').html(companyInfoHtml);
+
             companyApp.methods.getAllProducts().call().then(allProducts=>{
-              var html;
+              console.log(allProducts);
+              var html="";
               for(var i=0;i<allProducts.length;i++){
-                html+="<li class='list-group-item'">+allProducts[i]+"</li>";
+               
+                html+="<li class='list-group-item'>"+web3.utils.hexToAscii(allProducts[i])+"</li>";
               }
+              console.log(html);
               $("#products").html(html);
             });
           });
