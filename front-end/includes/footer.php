@@ -214,9 +214,32 @@ $(document).ready(function(){
                 var html = "";
                 console.log(parties);
                 for(var i=0;i<parties.length;i++){
-                  html+="<a href='product_parties.php?name="+web3.utils.hexToUtf8(parties[i])+"'"+"><li class='list-group-item'>"+web3.utils.hexToUtf8(parties[i])+"</li></a>";
+                  html+="<a href='party.php?name="+web3.utils.hexToUtf8(parties[i])+"'"+"><li class='list-group-item'>"+web3.utils.hexToUtf8(parties[i])+"</li></a>";
                 }
                 $('#products').html(html);
+              })
+            })
+          }else{
+            makeDefaultSwall("Not found", "company address not exists. there must be an error", "error");
+          }
+        });
+    })
+
+    $('#showMePartyInformation').on('click',function(){
+      
+      <?php echo "var company_name = '" .$company_name . "';"; ?>;
+      <?php echo "var party_name = '" .$product_name . "';"; ?>;
+        
+        companyFactoryApp.methods.company_products(web3.utils.utf8ToHex(company_name)).call({from:userAccount}).then(companyAddress=>{
+          if(!/^0x0+$/.test(companyAddress)){
+            companyApp = new web3.eth.Contract(companyAbi, companyAddress);
+            companyApp.methods.product_address(web3.utils.utf8ToHex(party_name)).call({from:userAccount}).then(productAddress=>{
+              productApp = new web3.eth.Contract(productAbi, productAddress);
+              productApp.methods.getParty(web3.utils.utf8ToHex(party_name)).call().then(party_info=>{
+                var html="";
+                console.log(party_info);
+                
+                $('#party_info').html(html);
               })
             })
           }else{
