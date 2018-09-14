@@ -2,6 +2,7 @@
 
 include("includes/header.php");
 include("includes/loggedin.php");
+
 ?>
 
 <h1>Register Company</h1>
