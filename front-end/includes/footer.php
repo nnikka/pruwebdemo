@@ -51,6 +51,7 @@ $(document).ready(function(){
       $.ajaxSetup({async: true});
     }
   
+    
     $("#registerButton").click(function(e){
       e.preventDefault();
       var name = $('#name').val();
@@ -68,7 +69,8 @@ $(document).ready(function(){
           makeDefaultSwall("Good Job", "You registered successfully, Confirm transaction in Metamask and wait for smart contract insertion", "success");
           companyFactoryApp.methods.createContract(web3.utils.asciiToHex(name.toString()), email.toString(), phone.toString() , description.toString(), pub_key.toString()).send({from:userAccount})
           .on("receipt",function(receipt){
-            makeDefaultSwall("Congratulation", "Your info is saved in smart contract", "success");
+            makeButtonSwall("Congrats","Your info is saved in smart contract", "success", false, "login.php");
+           
             console.log(receipt)
           })
           .on("error",function(err){
@@ -115,7 +117,8 @@ $(document).ready(function(){
             companyApp = new web3.eth.Contract(companyAbi, companyAddress);
             companyApp.methods.createProduct(web3.utils.asciiToHex(name),description).send({from:userAccount})
                   .on('receipt',function(receipt){
-                    makeDefaultSwall("Good job", "your transaction has been included in a block. wait 20 seconds, go back to the company page and click show me products again");
+                    makeButtonSwall("Good Job", "your transaction has been included in a block. wait 20 seconds, go back to the company page and click show me products again", "success", false, "company.php");
+                    
                   })
                   .on("error",function(error){
                       makeDefaultSwall("Error", "Sorry your transaction won't be included in a block. See metamask error or try again", "error");
@@ -176,6 +179,26 @@ $(document).ready(function(){
           body,
           status
         );
+    }
+  
+    function makeButtonSwall(title,text,type, cancelButton, redirectUri){
+      swal({
+          title: title,
+          text: text,
+          type: type,
+          showCancelButton:cancelButton,
+          confirmButtonColor: '#DD6B55',
+          confirmButtonText: 'Yes!',
+          cancelButtonText: 'No.'
+        },
+        function(isConfirm){
+          if(isConfirm){
+            location.href = redirectUri;
+          }else{
+
+          }
+        }
+      )
     }
 
    
