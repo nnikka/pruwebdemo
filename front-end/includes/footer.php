@@ -67,14 +67,15 @@ $(document).ready(function(){
         data:{function_name:"register_company",name:name, phone:phone, password:password, description:description, email:email, pub_key:pub_key}
       }).done(function(success){
         if(success == 200){
-          makeDefaultSwall("Good Job", "You registered successfully, Confirm transaction in Metamask and wait for smart contract insertion", "success");
+          $("#smartContractLoader").show();
           companyFactoryApp.methods.createContract(web3.utils.utf8ToHex(name.toString()), email.toString(), phone.toString() , description.toString(), pub_key.toString()).send({from:userAccount})
           .on("receipt",function(receipt){
+            $("#smartContractLoader").hide();
             makeButtonSwall("Congrats","Your info is saved in smart contract", "success", false, "login.php");
-           
             console.log(receipt)
           })
           .on("error",function(err){
+            $("#smartContractLoader").hide();
             makeDefaultSwall("Upps..", "Your info isn't saved in smart contract", "error");
           });
         }else{
@@ -116,13 +117,15 @@ $(document).ready(function(){
         companyFactoryApp.methods.company_products(web3.utils.utf8ToHex(company_name)).call({from:userAccount}).then(companyAddress=>{
           if(!/^0x0+$/.test(companyAddress)){
             companyApp = new web3.eth.Contract(companyAbi, companyAddress);
+            $("#smartContractLoader").show();
             companyApp.methods.createProduct(web3.utils.utf8ToHex(name),description).send({from:userAccount})
                   .on('receipt',function(receipt){
+                    $("#smartContractLoader").hide();
                     makeButtonSwall("Good Job", "your transaction has been included in a block. wait 20 seconds, go back to the company page and click show me products again", "success", false, "company.php");
-                    
                   })
                   .on("error",function(error){
-                      makeDefaultSwall("Error", "Sorry your transaction won't be included in a block. See metamask error or try again", "error");
+                    $("#smartContractLoader").hide();
+                    makeDefaultSwall("Error", "Sorry your transaction won't be included in a block. See metamask error or try again", "error");
                   });
           }else{
             makeDefaultSwall("Not found", "company address not exists. there must be an error");
