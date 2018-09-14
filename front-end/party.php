@@ -11,7 +11,7 @@ include("includes/loggedout.php");
 
 
 
-<hr />
+
 
 
 <a class="btn btn-default" id="showMePartyInformation">Show me Party INformation</a>
