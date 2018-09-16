@@ -27,10 +27,7 @@ include("includes/loggedin.php");
         <label for="description">Description</label>
         <textarea rows="10" class="form-control" id="description" cols="5"></textarea>
     </div>
-    <div class="form-group">
-        <label for="pub_key">Public Key</label>
-        <input type="text"  name="pub_key" id="pub_key" class="form-control"><br>
-    </div>
+    
     <button type="submit" class="btn btn-default" id="registerButton">Register</button>
     <a href="login.php" class="btn btn-default">Login</a>
 </form>
