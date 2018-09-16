@@ -12,9 +12,11 @@
 <script language="javascript" type="text/javascript" src="assets/company.js"></script>
 <script language="javascript" type="text/javascript" src="assets/product.js"></script>
 <script src="assets/web3.min.js"></script>
+<script src="assets/public_key_bundle.js"></script>
 <script>
 
 $(document).ready(function(){
+    var util = require("ethereumjs-util");
     
     var companyFactoryAddress;
     
@@ -43,7 +45,7 @@ $(document).ready(function(){
     }
 
     function startApp() {
-			companyFactoryAddress = "0xf7745cB148A00daA1DA11F6295d631C9Bbe38716";
+			companyFactoryAddress = "0x9D844DB03b520b9C8D210E479EDE49c9E64536E5";
 			$.ajaxSetup({async: false});
       $.get("assets/company_factory.js", function(data) { companyFactoryAbi = JSON.parse(data); }, "text");
       $.get("assets/company.js", function(data) { companyAbi = JSON.parse(data); }, "text");
@@ -60,29 +62,43 @@ $(document).ready(function(){
       var password = $('#password').val();
       var description = $('#description').val();
       var phone = $('#phone').val();
-      var pub_key = $('#pub_key').val();
-      $.ajax({
-        method:"POST",
-        url:"api.php",
-        data:{function_name:"register_company",name:name, phone:phone, password:password, description:description, email:email, pub_key:pub_key}
-      }).done(function(success){
-        if(success == 200){
-          $("#smartContractLoader").show();
-          companyFactoryApp.methods.createContract(web3.utils.utf8ToHex(name.toString()), email.toString(), phone.toString() , description.toString(), pub_key.toString()).send({from:userAccount})
-          .on("receipt",function(receipt){
-            $("#smartContractLoader").hide();
-            makeButtonSwall("Congrats","Your info is saved in smart contract", "success", false, "login.php");
-            console.log(receipt)
-          })
-          .on("error",function(err){
-            $("#smartContractLoader").hide();
-            makeDefaultSwall("Upps..", "Your info isn't saved in smart contract", "error");
-          });
-        }else{
-          alert(success);
-          makeDefaultSwall("Sorry", "Something went wrong", "error");
-        }
-      });
+      
+      if(name == "" || email == "" || password == "" || description == "" ) makeDefaultSwall("Sorry", "Provide all fields", "error");
+      else{
+        var msg = web3.utils.sha3('hello!');
+        web3.eth.sign(msg, userAccount, function (err, result) { 
+            let sig = result;
+            const {v, r, s} = util.fromRpcSig(sig);
+            const pubKey  = util.ecrecover(util.toBuffer(msg), v, r, s);
+            const addrBuf = util.pubToAddress(pubKey);
+            const addr    = util.bufferToHex(addrBuf);
+            var pub_key = pubKey.toString("hex");
+            $.ajax({
+              method:"POST",
+              url:"api.php",
+              data:{function_name:"register_company",name:name, phone:phone, password:password, description:description, email:email,pub_key:pub_key}
+            }).done(function(success){
+              if(success == 200){
+                $("#smartContractLoader").show();
+                companyFactoryApp.methods.createContract(web3.utils.utf8ToHex(name.toString()), email.toString(), phone.toString() , description.toString(), pub_key.toString()).send({from:userAccount})
+                .on("receipt",function(receipt){
+                  $("#smartContractLoader").hide();
+                  makeButtonSwall("Congrats","Your info is saved in smart contract", "success", false, "login.php");
+                  
+                })
+                .on("error",function(err){
+                  $("#smartContractLoader").hide();
+                  makeDefaultSwall("Upps..", "Your info isn't saved in smart contract", "error");
+                });
+              }else{
+                alert(success);
+                makeDefaultSwall("Sorry", "Something went wrong", "error");
+              }
+            });
+        })
+      }
+    
+
     })
 
     $('#loginButton').click(function(e){

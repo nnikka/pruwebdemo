@@ -1,0 +1,2 @@
+bc923d8d71fe2c78c2e5c8a12e5e9eb18d78bc1711bade85d744238cb3276cb0 -- private-key
+0x0f2f61A6C4077E4fb8134bBe7957728a89Bbc4aE -- public key.
