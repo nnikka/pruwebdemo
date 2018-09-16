@@ -252,7 +252,18 @@ $(document).ready(function(){
         });
     })
 
-    
+      
+  // const util = require('ethereumjs-util')
+
+  // const msg = web3.sha3('hello!');
+  // const sig = web3.eth.sign(web3.eth.accounts[0], msg);
+  // const {v, r, s} = util.fromRpcSig(sig);
+
+  // const pubKey  = util.ecrecover(util.toBuffer(msg), v, r, s);
+  // const addrBuf = util.pubToAddress(pubKey);
+  // const addr    = util.bufferToHex(addrBuf);
+
+  // console.log(web3.eth.accounts[0], addr);
 
     /* functions */
 
