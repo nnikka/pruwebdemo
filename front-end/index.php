@@ -9,7 +9,7 @@ include("includes/loggedin.php");
 </div>
 <div class="login-register-buttons" style="margin-top: 50px;">
  <a type="submit" href="login.php" class="btn btn-primary btn-lg btn-block">Login</a>
- <a type="submit" href="register.php" class="btn btn-primary btn-lg btn-block">Register</a>
+ <a type="submit" href="pre_register.php" class="btn btn-primary btn-lg btn-block">Register</a>
 
 </div>
 
