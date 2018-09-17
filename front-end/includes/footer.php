@@ -34,8 +34,8 @@ $(document).ready(function(){
 
     //ipfs
     var ipfs = window.IpfsApi({"host":'ipfs.infura.io',"port":'5001',"protocol":"https"});
-
-
+   
+    
     var companyFactoryAddress;
     
     //abis
@@ -51,6 +51,9 @@ $(document).ready(function(){
     //uuid
     var uuidsExists = false;
     var uuidCount = 0;
+    var uuidsArray=[];
+
+
     var userAccount;
     if (typeof web3 !== 'undefined') {
       web3 = new Web3(web3.currentProvider);
@@ -180,6 +183,9 @@ $(document).ready(function(){
             try{
               var myWallet = Wallet.fromV3(textFromFileLoaded, password, true);
               var public_key =  myWallet.getPublicKey().toString("hex");
+              var private_key = myWallet.getPrivateKey().toString("hex");
+              window.localStorage.setItem('public_key', public_key);
+              window.localStorage.setItem('private_key', private_key);
               $.ajax({
                   method:"POST",
                   url:"api.php",
@@ -350,12 +356,13 @@ $(document).ready(function(){
                 $('#party_info').html(html);
                 if(uuidsExists){
                   ipfs.files.get(party_info[3], function (err, files) {
-                    var uuidArray = JSON.parse("[" + files[0].content.toString() + "]")[0];
+                    var uuidArray =  uuidsArray = JSON.parse("[" + files[0].content.toString() + "]")[0];
                     var uuids = "<h2>Generated UUIDS Which you have to sign with your private key to get QR codes</h2>";
 
                     for(var i=0;i<uuidArray.length;i++){
                       uuids+="<li  class='list-group-item'>"+uuidArray[i]+"</li>";
                     }
+                    uuids+="<a class='btn btn-success' id='sign_uuids'>Sign UUids</a>";
                     $('#generated_uuids').html(uuids);
 
                   })
@@ -367,6 +374,19 @@ $(document).ready(function(){
           }
         });
     })
+
+    $(document).on("click", "#sign_uuids",function(){
+      var private_key = window.localStorage.getItem('private_key');
+      for(var i=0;i<uuidsArray.length;i++){
+        var signatureObject = web3.eth.accounts.sign(uuidsArray[i], userAccount);
+        var signature = signatureObject.signature;
+        
+      }
+    })
+   
+      
+
+    
   
     
     $(document).on("click","#generateUuids",function() {
