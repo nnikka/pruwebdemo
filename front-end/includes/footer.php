@@ -376,11 +376,29 @@ $(document).ready(function(){
 
     $(document).on("click", "#sign_uuids",function(){
       var private_key = window.localStorage.getItem('private_key');
+      var public_key = window.localStorage.getItem('public_key');
+      var query = "INSERT INTO MyTable ( signature, uuid, public_key ) VALUES ";
       for(var i=0;i<uuidsArray.length;i++){
         var signatureObject = web3.eth.accounts.sign(uuidsArray[i], userAccount);
         var signature = signatureObject.signature;
-        
-      }
+        query += "('" + signature + "', '" + uuidsArray[i] + "', '" + public_key + "')";
+        if(uuidsArray.length - 1 == i){
+          query += ";";
+        }else{
+          query += ",";
+        }
+      } 
+      $.ajax({
+            method:"POST",
+            url:"api.php",
+            data:{function_name:"add_signature", sql:query }
+        }).done(function(success){
+          if(success == 200){
+            makeButtonSwall("Congrats","You signed uuids successfuly", "success", false, "login.php");
+          }else{
+            makeDefaultSwall("Sorry", "Something bad happened during signing","error");
+          }
+        });
     })
    
       
