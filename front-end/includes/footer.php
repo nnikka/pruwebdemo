@@ -65,7 +65,7 @@ $(document).ready(function(){
     
 
     function startApp() {
-			companyFactoryAddress = "0xB614fD44437154a07612CDBfd6b1F687F89f8aa3";
+			companyFactoryAddress = "0xB12e02F17219466619c31ae6d6AD9c4931089318";
 			$.ajaxSetup({async: false});
       $.get("assets/company_factory.js", function(data) { companyFactoryAbi = JSON.parse(data); }, "text");
       $.get("assets/company.js", function(data) { companyAbi = JSON.parse(data); }, "text");
@@ -344,6 +344,7 @@ $(document).ready(function(){
                 html+="<li  class='list-group-item'>"+(party_info[1])+"</li>";
                 html+="<li  class='list-group-item'>"+(party_info[2])+"</li>";
                 html+="<li  class='list-group-item'>"+(party_info[3])+"</li>";
+                console.log(party_info);
                 html +="<br><a class='btn btn-default' id='generateUuids'>Generate UUIDs</a>";
                 $('#party_info').html(html);
                 
@@ -356,7 +357,7 @@ $(document).ready(function(){
                   }
                   var bufferFile = Buffer.Buffer.from(uuidArray);
                   ipfs.files.add(bufferFile,(error,result)=>{
-                    console.log(result[0].path);
+                    console.log(result[0].hash);
                     var ipfsUrl = "https://ipfs.io/ipfs/"+"QmPbqLZqCAUy5Sft1HRhr2U7tbLpxRB3afosPN3MiqQqif";
                     console.log(ipfsUrl);
                   })
