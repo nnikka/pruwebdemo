@@ -6,6 +6,7 @@ contract Product {
     bytes32 private name;
     string private description;
     address private owner;
+    
     struct partyStruct{
         uint time;
         uint256 quantity;
@@ -27,6 +28,7 @@ contract Product {
             description: _description,
             ipfsUuid:""
         });
+
         partyNames.push(_name);
         productParties[_name] = structure;
     }
