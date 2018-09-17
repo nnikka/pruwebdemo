@@ -13,11 +13,19 @@
 <script language="javascript" type="text/javascript" src="assets/product.js"></script>
 <script src="assets/web3.min.js"></script>
 <script src="assets/public_key_bundle.js"></script>
+<script src="assets/elliptic.js"></script>
+<script src="assets/ethereumjs-wallet.js"></script>
+<script src="assets/buffer.js"></script>
 <script>
 
 $(document).ready(function(){
     var util = require("ethereumjs-util");
+    var Wallet = require("ethereumjs-wallet");
     
+    var elliptic = require("elliptic");
+    var EC = require('elliptic').ec;
+
+
     var companyFactoryAddress;
     
     //abis
@@ -54,6 +62,24 @@ $(document).ready(function(){
       $.ajaxSetup({async: true});
     }
   
+    
+    $("#preRegister").on('click',function(e){
+      e.preventDefault();
+      var password = $('#password').val();
+      if(password.length <= 6) makeDefaultSwall("sorry", "provide more than 6 length password");
+      else{
+        var ec = new EC('secp256k1');
+        var key = ec.genKeyPair();
+        var private_key_elliptic = key.priv.toString(16);
+        var pubPoint = key.getPublic();
+        var public_key_elliptic = pubPoint.encode('hex');  
+        var private_key_buffer  = Buffer.Buffer.from(private_key_elliptic, 'hex');
+        var wallet = Wallet.fromPrivateKey(private_key_buffer);
+        var keyStoreText = wallet.toV3String(password);
+        downloadKeyStore("keystore.2018", keyStoreText);
+      }
+      
+    })
     
     $("#registerButton").click(function(e){
       e.preventDefault();
@@ -272,9 +298,22 @@ $(document).ready(function(){
 
     /* functions */
 
-    function getAllProducts(){
+    function downloadKeyStore(filename, text){
+      var element = document.createElement('a');
+      element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+      element.setAttribute('download', filename);
 
+      element.style.display = 'none';
+      document.body.appendChild(element);
+
+      element.click();
+
+      document.body.removeChild(element);
     }
+
+
+
+
 
     function makeDefaultSwall(header,body,status){
         swal(
