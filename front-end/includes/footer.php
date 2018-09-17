@@ -49,7 +49,8 @@ $(document).ready(function(){
     var productApp;
 
     //uuid
-
+    var uuidsExists = false;
+    var uuidCount = 0;
     var userAccount;
     if (typeof web3 !== 'undefined') {
       web3 = new Web3(web3.currentProvider);
@@ -110,7 +111,7 @@ $(document).ready(function(){
       var description = $('#description').val();
       var phone = $('#phone').val();
       
-      if(name == "" || email == "" || description == "" ) makeDefaultSwall("Sorry", "Provide all fields", "error");
+      if(name == "" || email == "" || description == "" || phone == "") makeDefaultSwall("Sorry", "Provide all fields", "error");
       else{
         <?php echo "var public_key_elliptic = '" .$public_key . "';"; ?>
         var msg = web3.utils.sha3('hello!');
@@ -159,7 +160,6 @@ $(document).ready(function(){
       fileReader.onload = function(fileLoadedEvent){
           var textFromFileLoaded = fileLoadedEvent.target.result;
           const myWallet = Wallet.fromV3(textFromFileLoaded, "123", true);
-          console.log("Private Key: " + myWallet.getPrivateKey().toString('hex')) 
       };
       
       fileReader.readAsText(fileToLoad, "UTF-8");
@@ -339,11 +339,14 @@ $(document).ready(function(){
             companyApp.methods.product_address(web3.utils.utf8ToHex(product_name)).call({from:userAccount}).then(productAddress=>{
               productApp = new web3.eth.Contract(productAbi, productAddress);
               productApp.methods.getParty(web3.utils.utf8ToHex(party_name)).call().then(party_info=>{
+                uuidsExists = (party_info[3] == "") ? false : true;
+                uuidCount = party_info[1];
                 var html="";
                 html+="<li  class='list-group-item'>"+(new Date(party_info[0] * 1000))+"</li>";
                 html+="<li  class='list-group-item'>"+(party_info[1])+"</li>";
                 html+="<li  class='list-group-item'>"+(party_info[2])+"</li>";
                 html+="<li  class='list-group-item'>"+(party_info[3])+"</li>";
+<<<<<<< HEAD
                 console.log(party_info);
                 html +="<br><a class='btn btn-default' id='generateUuids'>Generate UUIDs</a>";
                 $('#party_info').html(html);
@@ -360,9 +363,22 @@ $(document).ready(function(){
                     console.log(result[0].hash);
                     var ipfsUrl = "https://ipfs.io/ipfs/"+"QmPbqLZqCAUy5Sft1HRhr2U7tbLpxRB3afosPN3MiqQqif";
                     console.log(ipfsUrl);
+=======
+                if(!uuidsExists) html +="<br><a class='btn btn-default' id='generateUuids'>Generate UUIDs</a>";
+                $('#party_info').html(html);
+                if(uuidsExists){
+                  ipfs.files.get(party_info[3], function (err, files) {
+                    var uuidArray = JSON.parse("[" + files[0].content.toString() + "]")[0];
+                    var uuids = "<h2>Generated UUIDS Which you have to sign with your private key to get QR codes</h2>";
+
+                    for(var i=0;i<uuidArray.length;i++){
+                      uuids+="<li  class='list-group-item'>"+uuidArray[i]+"</li>";
+                    }
+                    $('#generated_uuids').html(uuids);
+
+>>>>>>> b4ba9417a8193bc438387093b4ae7acc51913e70
                   })
-                  
-                });
+                }
               })
             })
           }else{
@@ -371,6 +387,48 @@ $(document).ready(function(){
         });
     })
   
+    
+    $(document).on("click","#generateUuids",function() {
+        if(!uuidsExists && uuidsExists != undefined && uuidCount != 0){
+          var uuidv1 = require('uuid/v1');
+          var uuidArray = [];
+          let uuid_num = uuidCount;
+          $('#generate_uuids').show();
+          for(let i = 0; i < uuid_num; i++){
+            uuidArray[i] = uuidv1();
+          }
+          var bufferFile = Buffer.Buffer.from(JSON.stringify(uuidArray));
+          ipfs.files.add(bufferFile,(error,result)=>{
+            $('#generate_uuids').hide();
+            const ipfsHash = result[0].hash;
+            <?php echo "var company_name = '" .$company_name . "';"; ?>;
+            <?php echo "var party_name = '" .$product_name . "';"; ?>;
+            <?php echo "var product_name = '" .$party_name . "';"; ?>; 
+            companyFactoryApp.methods.company_products(web3.utils.utf8ToHex(company_name)).call({from:userAccount}).then(companyAddress=>{
+              if(!/^0x0+$/.test(companyAddress)){
+                companyApp = new web3.eth.Contract(companyAbi, companyAddress);
+                companyApp.methods.product_address(web3.utils.utf8ToHex(product_name)).call({from:userAccount}).then(productAddress=>{
+                  productApp = new web3.eth.Contract(productAbi, productAddress);
+                  $("#smartContractLoader").show();
+                  productApp.methods.saveIpfsUuid(web3.utils.utf8ToHex(party_name), ipfsHash).send({from:userAccount})
+                  .on('receipt',function(receipt){
+                      $("#smartContractLoader").hide();
+                      makeButtonSwall("Congrats","You've generated new uuids", "success", false, "party.php?name="+party_name+"&prod_name="+product_name);
+                  })
+                  .on("error",function(error){
+                    $("#smartContractLoader").hide();
+                    makeDefaultSwall("Sorry", "generating new uuids couldn't happen. see metamask error for more info","error");
+                  });
+
+                })
+              }
+            })
+          })
+        }
+      })
+                  
+   
+
 
     /* functions */
 
