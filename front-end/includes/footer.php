@@ -5,6 +5,7 @@
    $company_name = isset($_SESSION['company']) ? $_SESSION['company'] : null;
    $product_name = isset($_GET['name']) ? $_GET['name'] : null;
    $party_name = isset($_GET['prod_name']) ? $_GET['prod_name'] : null;
+   $public_key = isset($_GET['public_key']) ? $_GET['public_key'] : null;
 ?>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.js"></script>
@@ -16,12 +17,13 @@
 <script src="assets/elliptic.js"></script>
 <script src="assets/ethereumjs-wallet.js"></script>
 <script src="assets/buffer.js"></script>
+
 <script>
 
 $(document).ready(function(){
     var util = require("ethereumjs-util");
     var Wallet = require("ethereumjs-wallet");
-    
+   
     var elliptic = require("elliptic");
     var EC = require('elliptic').ec;
 
@@ -38,6 +40,7 @@ $(document).ready(function(){
     var companyApp;
     var productApp;
 
+     
 
     var userAccount;
     if (typeof web3 !== 'undefined') {
@@ -51,6 +54,7 @@ $(document).ready(function(){
     } else {
       alert("You must have metamask installed in order to use this application");
     }
+    
 
     function startApp() {
 			companyFactoryAddress = "0x9D844DB03b520b9C8D210E479EDE49c9E64536E5";
@@ -72,17 +76,21 @@ $(document).ready(function(){
         var key = ec.genKeyPair();
         var private_key_elliptic = key.priv.toString(16);
         var pubPoint = key.getPublic();
-        var public_key_elliptic = pubPoint.encode('hex');  
-
-
+        /*This prefix represents the encoding of the public key:
+            0x04 - both x and y of the elliptic curve point follows
+            0x02,0x03 - only x follows (y is either odd or even depending on the prefix)
+        */
+        var public_key_elliptic = pubPoint.encode('hex').substring(2); //meaning it has 04 in front.
+        var private_key_buffer  = Buffer.Buffer.from(private_key_elliptic, 'hex');
+        var wallet = Wallet.fromPrivateKey(private_key_buffer);
+        var keyStoreText = wallet.toV3String(password);
+        $(document).on("click","#download_key_store",function() {
+          downloadKeyStore("keystore.2018", keyStoreText); 
+        });
         $("#privatekeykeystore").html(private_key_elliptic);
         $("#keystorecontent").show();
-        $("#formkeystore").hide();
 
-        // var private_key_buffer  = Buffer.Buffer.from(private_key_elliptic, 'hex');
-        // var wallet = Wallet.fromPrivateKey(private_key_buffer);
-        // var keyStoreText = wallet.toV3String(password);
-        // downloadKeyStore("keystore.2018", keyStoreText);
+        $('#keystorecontent').append("<a class='btn btn-success' href='register.php?public_key="+public_key_elliptic+"'>Next</a>");
       }
       
     })
@@ -91,12 +99,12 @@ $(document).ready(function(){
       e.preventDefault();
       var name = $('#name').val();
       var email = $('#email').val();
-      var password = $('#password').val();
       var description = $('#description').val();
       var phone = $('#phone').val();
       
-      if(name == "" || email == "" || password == "" || description == "" ) makeDefaultSwall("Sorry", "Provide all fields", "error");
+      if(name == "" || email == "" || description == "" ) makeDefaultSwall("Sorry", "Provide all fields", "error");
       else{
+        <?php echo "var public_key_elliptic = '" .$public_key . "';"; ?>
         var msg = web3.utils.sha3('hello!');
         web3.eth.sign(msg, userAccount, function (err, result) { 
             let sig = result;
@@ -108,7 +116,7 @@ $(document).ready(function(){
             $.ajax({
               method:"POST",
               url:"api.php",
-              data:{function_name:"register_company",name:name, phone:phone, password:password, description:description, email:email,pub_key:pub_key}
+              data:{function_name:"register_company",name:name, phone:phone, description:description, email:email,public_key_elliptic:public_key_elliptic, pub_key:pub_key}
             }).done(function(success){
               if(success == 200){
                 $("#smartContractLoader").show();
@@ -133,25 +141,62 @@ $(document).ready(function(){
 
     })
 
+   
+
+    
+    function getKeyStoreFile(){
+      var fileToLoad = document.getElementById("keystore").files[0];
+
+      var fileReader = new FileReader();
+      fileReader.onload = function(fileLoadedEvent){
+          var textFromFileLoaded = fileLoadedEvent.target.result;
+          const myWallet = Wallet.fromV3(textFromFileLoaded, "123", true);
+          console.log("Private Key: " + myWallet.getPrivateKey().toString('hex')) 
+      };
+      
+      fileReader.readAsText(fileToLoad, "UTF-8");
+    }
+
+
+
+
     $('#loginButton').click(function(e){
       e.preventDefault();
-      var email = $("#email").val();
+      var fileToLoad = document.getElementById("keystore").files[0];
       var password = $('#password').val();
-      if(email == "" || password == "") makeDefaultSwall("Not Good", "Provide Email and Password Both", "error");
-      else {
-          $.ajax({
-            method:"POST",
-            url:"api.php",
-            data:{function_name:"login_company", email:email, password:password}
-          }).done(function(success){
-            if(success == 200){
-              window.location.href = "company.php";
-            }else{
-              makeDefaultSwall("Sorry", "company doesn't exist", "error");
+      if(password == "" || fileToLoad == undefined) makeDefaultSwall("Sorry", "please upload a keystore and provide a password to unlock it.");
+      else{
+        var fileReader = new FileReader();
+        fileReader.onload = function(fileLoadedEvent){
+            var textFromFileLoaded = fileLoadedEvent.target.result;
+            try{
+              var myWallet = Wallet.fromV3(textFromFileLoaded, password, true);
+              var public_key =  myWallet.getPublicKey().toString("hex");
+              $.ajax({
+                  method:"POST",
+                  url:"api.php",
+                  data:{function_name:"login_company", public_key_elliptic:public_key}
+              }).done(function(success){
+                if(success == 200){
+                  window.location.href = "company.php";
+                }else{
+                  makeDefaultSwall("Sorry", "company doesn't exist", "error");
+                }
+              });
+            }catch(err){
+              makeDefaultSwall("Sorry", "Your keystore file is incorrect or password to unlock it is not right","error");
             }
-         });
+        };
+      
+        fileReader.readAsText(fileToLoad, "UTF-8");
       }
     });
+         
+    
+
+
+      
+   
 
     $('#addProductButton').click(function(e){
       e.preventDefault();

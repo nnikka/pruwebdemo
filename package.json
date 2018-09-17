@@ -13,6 +13,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "brfs": "^2.0.1",
+    "browserify-fs": "^1.0.0",
     "buffer": "^5.2.0",
     "solc": "^0.4.24",
     "truffle-hdwallet-provider": "0.0.3",
