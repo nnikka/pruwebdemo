@@ -24,5 +24,4 @@ include("includes/loggedout.php");
 
 
 
-
 <?php include("includes/footer.php"); ?>
