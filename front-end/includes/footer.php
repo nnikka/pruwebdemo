@@ -57,7 +57,7 @@ $(document).ready(function(){
     
 
     function startApp() {
-			companyFactoryAddress = "0x9D844DB03b520b9C8D210E479EDE49c9E64536E5";
+			companyFactoryAddress = "0x979258caCb46EF77Ae62dA3356DD26ff1FcB0B51";
 			$.ajaxSetup({async: false});
       $.get("assets/company_factory.js", function(data) { companyFactoryAbi = JSON.parse(data); }, "text");
       $.get("assets/company.js", function(data) { companyAbi = JSON.parse(data); }, "text");
