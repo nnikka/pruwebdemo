@@ -11,8 +11,8 @@ if(isset($_POST['function_name']) && $_POST['function_name'] == "login_company")
 }
 
 function register_company($data, $conn){
-  $sql = "INSERT INTO company (name, email, phone, description, password, pub_key)
-      VALUES ('" . $data['name']."','".$data['email']."','".$data['phone']."','".$data['description']."','".$data['password']."','".$data['pub_key']."')";
+  $sql = "INSERT INTO company (name, email, phone, description, pub_key, public_key_elliptic)
+      VALUES ('" . $data['name']."','".$data['email']."','".$data['phone']."','".$data['description']."','".$data['pub_key']."','".$data['public_key_elliptic']."')";
 
   if ($conn->query($sql) === TRUE) {
       return 200;
@@ -23,7 +23,7 @@ function register_company($data, $conn){
 
 
 function login_company($data, $conn){
-  $sql = "SELECT * FROM company where email='".$data['email']."' AND password='".$data['password']."'";
+  $sql = "SELECT * FROM company where public_key_elliptic='".$data['public_key_elliptic']."'";
   $result = $conn->query($sql);
   if ($result->num_rows > 0) {;
     $row = $result->fetch_assoc();

@@ -16,10 +16,6 @@ include("includes/loggedin.php");
         <input type="email" class="form-control" name="email" id="email"><br>
     </div>
     <div class="form-group">
-        <label for="name">Password</label>
-        <input type="password"  class="form-control" name="password" id="password"><br>
-    </div>
-    <div class="form-group">
         <label for="phone">Phone:</label>
         <input type="number" class="form-control" name="phone" id="phone"><br>
     </div>
