@@ -15,6 +15,7 @@ include("includes/loggedout.php");
 
 
 <a class="btn btn-default" id="showMePartyInformation">Show me Party INformation</a>
+<a class="btn btn-default" href="company.php">Company Page</a>
 
 <h2>Party Information</h2>
 <ul class="list-group" id="party_info">
@@ -22,6 +23,11 @@ include("includes/loggedout.php");
 
 </ul>
 
+<hr>
+<ul class="list-group" id="generated_uuids">
+
+
+</ul>
 
 
 <?php include("includes/footer.php"); ?>
