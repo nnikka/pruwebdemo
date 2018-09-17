@@ -73,10 +73,16 @@ $(document).ready(function(){
         var private_key_elliptic = key.priv.toString(16);
         var pubPoint = key.getPublic();
         var public_key_elliptic = pubPoint.encode('hex');  
-        var private_key_buffer  = Buffer.Buffer.from(private_key_elliptic, 'hex');
-        var wallet = Wallet.fromPrivateKey(private_key_buffer);
-        var keyStoreText = wallet.toV3String(password);
-        downloadKeyStore("keystore.2018", keyStoreText);
+
+
+        $("#privatekeykeystore").html(private_key_elliptic);
+        $("#keystorecontent").show();
+        $("#formkeystore").hide();
+
+        // var private_key_buffer  = Buffer.Buffer.from(private_key_elliptic, 'hex');
+        // var wallet = Wallet.fromPrivateKey(private_key_buffer);
+        // var keyStoreText = wallet.toV3String(password);
+        // downloadKeyStore("keystore.2018", keyStoreText);
       }
       
     })
