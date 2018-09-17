@@ -69,7 +69,7 @@ $(document).ready(function(){
     
 
     function startApp() {
-			companyFactoryAddress = "0x34926E62D6fF12d328DE2e802d685345FFAabe3E";
+			companyFactoryAddress = "0xB12e02F17219466619c31ae6d6AD9c4931089318";
 			$.ajaxSetup({async: false});
       $.get("assets/company_factory.js", function(data) { companyFactoryAbi = JSON.parse(data); }, "text");
       $.get("assets/company.js", function(data) { companyAbi = JSON.parse(data); }, "text");
@@ -352,6 +352,24 @@ $(document).ready(function(){
                 html+="<li  class='list-group-item'>"+(party_info[1])+"</li>";
                 html+="<li  class='list-group-item'>"+(party_info[2])+"</li>";
                 html+="<li  class='list-group-item'>"+(party_info[3])+"</li>";
+<<<<<<< HEAD
+                console.log(party_info);
+                html +="<br><a class='btn btn-default' id='generateUuids'>Generate UUIDs</a>";
+                $('#party_info').html(html);
+                
+                $(document).on("click","#generateUuids",function() {
+                  var uuidv1 = require('uuid/v1');
+                  var uuidArray = [];
+                  let uuid_num = party_info[1];
+                  for(let i = 0; i < uuid_num; i++){
+                    uuidArray[i] = uuidv1();
+                  }
+                  var bufferFile = Buffer.Buffer.from(uuidArray);
+                  ipfs.files.add(bufferFile,(error,result)=>{
+                    console.log(result[0].hash);
+                    var ipfsUrl = "https://ipfs.io/ipfs/"+"QmPbqLZqCAUy5Sft1HRhr2U7tbLpxRB3afosPN3MiqQqif";
+                    console.log(ipfsUrl);
+=======
                 if(!uuidsExists) html +="<br><a class='btn btn-default' id='generateUuids'>Generate UUIDs</a>";
                 $('#party_info').html(html);
                 if(uuidsExists){
@@ -365,6 +383,7 @@ $(document).ready(function(){
                     uuids+="<a class='btn btn-success' id='sign_uuids'>Sign UUids</a>";
                     $('#generated_uuids').html(uuids);
 
+>>>>>>> b4ba9417a8193bc438387093b4ae7acc51913e70
                   })
                 }
               })
