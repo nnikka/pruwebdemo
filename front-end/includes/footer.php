@@ -17,6 +17,11 @@
 <script src="assets/elliptic.js"></script>
 <script src="assets/ethereumjs-wallet.js"></script>
 <script src="assets/buffer.js"></script>
+<script src="assets/uuid.js"></script>
+
+<!-- ipfs -->
+<script src="https://unpkg.com/ipfs-api/dist/index.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/ipfs/dist/index.min.js"></script>
 
 <script>
 
@@ -26,6 +31,9 @@ $(document).ready(function(){
    
     var elliptic = require("elliptic");
     var EC = require('elliptic').ec;
+
+    //ipfs
+    var ipfs = window.IpfsApi({"host":'ipfs.infura.io',"port":'5001',"protocol":"https"});
 
 
     var companyFactoryAddress;
@@ -40,7 +48,7 @@ $(document).ready(function(){
     var companyApp;
     var productApp;
 
-     
+    //uuid
 
     var userAccount;
     if (typeof web3 !== 'undefined') {
@@ -57,7 +65,7 @@ $(document).ready(function(){
     
 
     function startApp() {
-			companyFactoryAddress = "0x979258caCb46EF77Ae62dA3356DD26ff1FcB0B51";
+			companyFactoryAddress = "0xB614fD44437154a07612CDBfd6b1F687F89f8aa3";
 			$.ajaxSetup({async: false});
       $.get("assets/company_factory.js", function(data) { companyFactoryAbi = JSON.parse(data); }, "text");
       $.get("assets/company.js", function(data) { companyAbi = JSON.parse(data); }, "text");
@@ -335,8 +343,25 @@ $(document).ready(function(){
                 html+="<li  class='list-group-item'>"+(new Date(party_info[0] * 1000))+"</li>";
                 html+="<li  class='list-group-item'>"+(party_info[1])+"</li>";
                 html+="<li  class='list-group-item'>"+(party_info[2])+"</li>";
-                
+                html+="<li  class='list-group-item'>"+(party_info[3])+"</li>";
+                html +="<br><a class='btn btn-default' id='generateUuids'>Generate UUIDs</a>";
                 $('#party_info').html(html);
+                
+                $(document).on("click","#generateUuids",function() {
+                  var uuidv1 = require('uuid/v1');
+                  var uuidArray = [];
+                  let uuid_num = party_info[1];
+                  for(let i = 0; i < uuid_num; i++){
+                    uuidArray[i] = uuidv1();
+                  }
+                  var bufferFile = Buffer.Buffer.from(uuidArray);
+                  ipfs.files.add(bufferFile,(error,result)=>{
+                    console.log(result[0].path);
+                    var ipfsUrl = "https://ipfs.io/ipfs/"+"QmPbqLZqCAUy5Sft1HRhr2U7tbLpxRB3afosPN3MiqQqif";
+                    console.log(ipfsUrl);
+                  })
+                  
+                });
               })
             })
           }else{
@@ -344,8 +369,7 @@ $(document).ready(function(){
           }
         });
     })
-
-    
+  
 
     /* functions */
 

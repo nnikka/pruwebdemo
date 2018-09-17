@@ -16,6 +16,10 @@
     "brfs": "^2.0.1",
     "browserify-fs": "^1.0.0",
     "buffer": "^5.2.0",
+    "elliptic": "^6.4.1",
+    "ethereumjs-util": "^5.2.0",
+    "ethereumjs-wallet": "^0.6.2",
+    "js-sha3": "^0.8.0",
     "solc": "^0.4.24",
     "truffle-hdwallet-provider": "0.0.3",
     "web3": "^1.0.0-beta.34"

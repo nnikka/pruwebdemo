@@ -3,9 +3,7 @@ const fs = require('fs')
 const path = require('path')
 const HDWalletProvider = require("truffle-hdwallet-provider");
 
-
 let AbiCompanyFactory,BytecodeCompanyFactory;
-
 
 var contentOfCompanyFactory = fs.readFileSync("Contract_Files/CompanyFactory.json",'utf8');
 var contentOfCompany = fs.readFileSync("Contract_Files/Company.json",'utf8');
@@ -16,7 +14,6 @@ byteCodeCompanyFactory = (JSON.parse(contentOfCompanyFactory)['bytecode']);
 
 let abiCompany = JSON.parse(JSON.parse(contentOfCompany)['interface']);
 let abiProduct = JSON.parse(JSON.parse(contentOfProduct)['interface']);
-
 
 const provider = new HDWalletProvider(
     'butter salmon fabric unique weather boil someone transfer arrest ship blade direct',
